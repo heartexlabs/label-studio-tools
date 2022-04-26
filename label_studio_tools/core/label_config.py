@@ -12,6 +12,7 @@ _NOT_CONTROL_TAGS = {'Filter',}
 _DIR_APP_NAME = 'label-studio'
 _VIDEO_TRACKING_TAGS = {'videorectangle'}
 
+
 def parse_config(config_string):
     """
     :param config_string: Label config string
@@ -51,11 +52,22 @@ def parse_config(config_string):
         xml_tree = etree.fromstring(config_string)
     except etree.XMLSyntaxError as e:
         raise LabelStudioXMLSyntaxErrorSentryIgnored(str(e))
-
     inputs, outputs, labels = {}, {}, defaultdict(dict)
+    # Add variables to config (e.g. {{idx}} for index in Repeater
+    variables = []
     for tag in xml_tree.iter():
+        if tag.attrib and 'indexFlag' in tag.attrib:
+            variables.append(tag.attrib['indexFlag'])
         if _is_output_tag(tag):
             tag_info = {'type': tag.tag, 'to_name': tag.attrib['toName'].split(',')}
+            if variables:
+                # Find variables in tag_name and regex if find it
+                for v in variables:
+                    for tag_name in tag_info['to_name']:
+                        if v in tag_name:
+                            if 'regex' not in tag_info:
+                                tag_info['regex'] = {}
+                            tag_info['regex'][v] = ".*"
             # Grab conditionals if any
             conditionals = {}
             if tag.attrib.get('perRegion') == 'true':
