@@ -54,3 +54,19 @@ def test_is_video_object_tracking_not_video():
                   </Choices>
                 </View>''')
     assert not is_video_object_tracking(label_config)
+
+
+def test_label_config_with_valueType_url():
+    """
+    Test config with value type = url
+    """
+    label_config = '''
+            <View><Text name="meta_info" value="$meta_info"></Text>
+              <Text name="text" value="$text" valueType="url"></Text>
+              <Choices name="text_class" choice="single" toName="text">
+                <Choice value="class_A"></Choice>
+                <Choice value="class_B"></Choice>
+              </Choices>
+            </View>'''
+    config = parse_config(label_config)
+    assert config['text_class']['inputs'][0]['valueType'] == 'url'

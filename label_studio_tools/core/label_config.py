@@ -69,7 +69,9 @@ def parse_config(config_string):
                 tag_info['conditionals'] = conditionals
             outputs[tag.attrib['name']] = tag_info
         elif _is_input_tag(tag):
-            inputs[tag.attrib['name']] = {'type': tag.tag, 'value': tag.attrib['value'].lstrip('$')}
+            inputs[tag.attrib['name']] = {'type': tag.tag,
+                                          'value': tag.attrib['value'].lstrip('$'),
+                                          'valueType': tag.attrib.get('valueType')}
         if tag.tag not in _LABEL_TAGS:
             continue
         parent_name = _get_parent_output_tag_name(tag, outputs)
